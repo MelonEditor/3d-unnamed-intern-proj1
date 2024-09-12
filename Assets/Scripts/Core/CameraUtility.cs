@@ -39,7 +39,6 @@ public static class CameraUtility {
         return false;
     }
 
-    // With thanks to http://www.turiyaware.com/a-solution-to-unitys-camera-worldtoscreenpoint-causing-ui-elements-to-display-when-object-is-behind-the-camera/
     public static MinMax3D GetScreenRectFromBounds (MeshFilter renderer, Camera mainCamera) {
         MinMax3D minMax = new MinMax3D (float.MaxValue, float.MinValue);
 

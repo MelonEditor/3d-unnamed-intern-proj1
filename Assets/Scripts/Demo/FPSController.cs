@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,12 +10,15 @@ public class FPSController : PortalTraveller {
     public float smoothMoveTime = 0.1f;
     public float jumpForce = 8;
     public float gravity = 18;
+    public float terminalVelocity = 100;
 
     public bool lockCursor;
     public float mouseSensitivity = 10;
     public Vector2 pitchMinMax = new Vector2 (-40, 85);
     public float rotationSmoothTime = 0.1f;
 
+    public string gravityDirection = "-y";
+    
     CharacterController controller;
     Camera cam;
     public float yaw;
@@ -24,7 +28,7 @@ public class FPSController : PortalTraveller {
 
     float yawSmoothV;
     float pitchSmoothV;
-    float verticalVelocity;
+    float gravitationalVelocity;
     Vector3 velocity;
     Vector3 smoothV;
     Vector3 rotationSmoothVelocity;
@@ -34,6 +38,7 @@ public class FPSController : PortalTraveller {
     float lastGroundedTime;
     bool disabled;
 
+    
     void Start () {
         cam = Camera.main;
         if (lockCursor) {
@@ -74,28 +79,56 @@ public class FPSController : PortalTraveller {
         Vector3 targetVelocity = worldInputDir * currentSpeed;
         velocity = Vector3.SmoothDamp (velocity, targetVelocity, ref smoothV, smoothMoveTime);
 
-        verticalVelocity -= gravity * Time.deltaTime;
-        velocity = new Vector3 (velocity.x, verticalVelocity, velocity.z);
+        
+        if (gravityDirection == "-y")
+        {
+            if(gravitationalVelocity > -terminalVelocity){ gravitationalVelocity -= gravity * Time.deltaTime; }
+            velocity = new Vector3 (velocity.x, gravitationalVelocity, velocity.z);
+        }
+        else if(gravityDirection == "+y")
+        {
+            if(gravitationalVelocity <  terminalVelocity){ gravitationalVelocity += gravity * Time.deltaTime; }
+            velocity = new Vector3 (velocity.x, gravitationalVelocity, velocity.z);
+        }
+        else if(gravityDirection == "-x")
+        {
+            if(gravitationalVelocity > -terminalVelocity){ gravitationalVelocity -= gravity * Time.deltaTime; }
+            velocity = new Vector3 (gravitationalVelocity, velocity.y, velocity.z);
+        }
+        else if(gravityDirection == "+x")
+        {
+            if(gravitationalVelocity <  terminalVelocity){ gravitationalVelocity += gravity * Time.deltaTime; }
+            velocity = new Vector3 (gravitationalVelocity, velocity.y, velocity.z);
+        }
+        else if(gravityDirection == "-z")
+        {
+            if(gravitationalVelocity > -terminalVelocity){ gravitationalVelocity -= gravity * Time.deltaTime; }
+            velocity = new Vector3 (velocity.x, velocity.y, gravitationalVelocity);
+        }
+        else if(gravityDirection == "+z")
+        {
+            if(gravitationalVelocity <  terminalVelocity){ gravitationalVelocity += gravity * Time.deltaTime; }
+            velocity = new Vector3 (velocity.x, velocity.y, gravitationalVelocity);
+        }
 
         var flags = controller.Move (velocity * Time.deltaTime);
         if (flags == CollisionFlags.Below) {
             jumping = false;
             lastGroundedTime = Time.time;
-            verticalVelocity = 0;
+            gravitationalVelocity = 0;
         }
 
         if (Input.GetKeyDown (KeyCode.Space)) {
             float timeSinceLastTouchedGround = Time.time - lastGroundedTime;
             if (controller.isGrounded || (!jumping && timeSinceLastTouchedGround < 0.15f)) {
                 jumping = true;
-                verticalVelocity = jumpForce;
+                gravitationalVelocity = jumpForce;
             }
         }
 
         float mX = Input.GetAxisRaw ("Mouse X");
         float mY = Input.GetAxisRaw ("Mouse Y");
 
-        // Verrrrrry gross hack to stop camera swinging down at start
         float mMag = Mathf.Sqrt (mX * mX + mY * mY);
         if (mMag > 5) {
             mX = 0;
