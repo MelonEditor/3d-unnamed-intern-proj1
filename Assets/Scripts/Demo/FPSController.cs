@@ -122,7 +122,7 @@ public class FPSController : PortalTraveller {
         
             rb.linearVelocity = new Vector3 (velocity.x, rb.linearVelocity.y, velocity.z);
 
-            transform.eulerAngles = new Vector3 (0, 0, 0);
+            transform.eulerAngles = new Vector3 (0, smoothYaw, 0);
             
             camHolder.transform.eulerAngles = -gravityDirection * smoothYaw;
             cam.transform.localEulerAngles = Vector3.right * smoothPitch;
@@ -139,7 +139,7 @@ public class FPSController : PortalTraveller {
         
             rb.linearVelocity = new Vector3 (velocity.x, rb.linearVelocity.y, velocity.z);
 
-            transform.eulerAngles = new Vector3 (180, 0, 0);
+            transform.eulerAngles = new Vector3 (180, -smoothYaw, 0);
             
             camHolder.transform.eulerAngles = -gravityDirection * smoothYaw;
             cam.transform.localEulerAngles = Vector3.left * smoothPitch;
@@ -156,7 +156,7 @@ public class FPSController : PortalTraveller {
 
             rb.linearVelocity = new Vector3 (rb.linearVelocity.x, velocity.y, velocity.z);
             
-            transform.eulerAngles = new Vector3 (0, 0, -90);
+            transform.eulerAngles = new Vector3 (smoothYaw, 0, -90);
             
             camHolder.transform.eulerAngles = -gravityDirection * smoothYaw;
             cam.transform.localEulerAngles = Vector3.down * smoothPitch;
@@ -173,7 +173,7 @@ public class FPSController : PortalTraveller {
 
             rb.linearVelocity = new Vector3 (rb.linearVelocity.x, velocity.y, velocity.z);
             
-            transform.eulerAngles = new Vector3 (0, 0, 90);
+            transform.eulerAngles = new Vector3 (-smoothYaw, 0, 90);
             
             camHolder.transform.eulerAngles = -gravityDirection * smoothYaw;
             cam.transform.localEulerAngles = Vector3.up * smoothPitch;
