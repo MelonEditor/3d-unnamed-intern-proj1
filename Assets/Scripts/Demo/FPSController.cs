@@ -40,6 +40,7 @@ public class FPSController : PortalTraveller {
     private Rigidbody rb;
 
     public GameObject camHolder;
+    public SpawnPoint SpawnPoint;
 
     bool isGrounded;
     void Start () {
@@ -226,4 +227,11 @@ public class FPSController : PortalTraveller {
         Physics.SyncTransforms ();
     }
 
+    public void ReturnToSpawnPoint()
+    {
+        transform.position = new Vector3(SpawnPoint.transform.position.x, SpawnPoint.transform.position.y + 1.2f, SpawnPoint.transform.position.z);
+        transform.rotation = SpawnPoint.transform.rotation;
+        gravityDirection = SpawnPoint.gravityDirection;
+        rb.linearVelocity = Vector3.zero;
+    }
 }
