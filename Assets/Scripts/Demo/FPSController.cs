@@ -214,6 +214,12 @@ public class FPSController : PortalTraveller {
             cam.transform.localEulerAngles = Vector3.right * smoothPitch;
             cam.transform.localEulerAngles = new Vector3(90 + cam.transform.localEulerAngles.x, cam.transform.localEulerAngles.y, cam.transform.localEulerAngles.z);
         }
+
+        if (rb.linearVelocity.magnitude > terminalVelocity)
+        {
+            rb.linearVelocity = rb.linearVelocity.normalized * terminalVelocity;
+        }
+        
     }
 
     public override void Teleport (Transform fromPortal, Transform toPortal, Vector3 pos, Quaternion rot) {
@@ -229,7 +235,8 @@ public class FPSController : PortalTraveller {
 
     public void ReturnToSpawnPoint()
     {
-        transform.position = new Vector3(SpawnPoint.transform.position.x, SpawnPoint.transform.position.y + 1.2f, SpawnPoint.transform.position.z);
+        transform.position = new Vector3(SpawnPoint.transform.position.x - 1.2f * SpawnPoint.gravityDirection.x,
+            SpawnPoint.transform.position.y - 1.2f * SpawnPoint.gravityDirection.y, SpawnPoint.transform.position.z - 1.2f * SpawnPoint.gravityDirection.z);
         transform.rotation = SpawnPoint.transform.rotation;
         gravityDirection = SpawnPoint.gravityDirection;
         rb.linearVelocity = Vector3.zero;
