@@ -7,7 +7,7 @@ public class GravityChangeTrigger : MonoBehaviour
     public Vector3 GravityDirection;
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
+//        if (other.CompareTag("Player"))
         {
             Player.gravityDirection = GravityDirection;
         }
