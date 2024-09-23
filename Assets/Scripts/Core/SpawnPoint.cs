@@ -3,11 +3,27 @@ using UnityEngine;
 
 public class SpawnPoint : MonoBehaviour
 {
-    public FPSController Player;
+    private FPSController player;
+
+    private void Start()
+    {
+        player = FindAnyObjectByType<FPSController>();
+        if (player == null)
+        {
+            Debug.LogError("FPSController not found in the scene!");
+        }
+    }
     public Vector3 gravityDirection;
     private void OnCollisionEnter(Collision other)
     {
-        gravityDirection = Player.gravityDirection;
-        Player.SpawnPoint = this;
+        if (player != null)
+        {
+            gravityDirection = player.gravityDirection;
+            player.SpawnPoint = this;
+        }
+        else
+        {
+            Debug.LogWarning("Player reference is null. Cannot apply spawn point.");
+        }
     }
 }

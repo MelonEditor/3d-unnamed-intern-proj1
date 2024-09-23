@@ -3,16 +3,25 @@ using UnityEngine;
 
 public class JumpBoosterTrigger : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    public FPSController Player;
+    private FPSController player;
     public float jumpForceMultiplier;
     private float oldJumpForce;
+
+    private void Start()
+    {
+        player = FindAnyObjectByType<FPSController>();
+        if (player == null)
+        {
+            Debug.LogError("FPSController not found in the scene!");
+        }
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
-            oldJumpForce = Player.jumpForce;
-            Player.jumpForce = jumpForceMultiplier * oldJumpForce;
+            oldJumpForce = player.jumpForce;
+            player.jumpForce = jumpForceMultiplier * oldJumpForce;
         }
     }
 
@@ -20,7 +29,7 @@ public class JumpBoosterTrigger : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            Player.jumpForce = oldJumpForce;
+            player.jumpForce = oldJumpForce;
         }
     }
 }
