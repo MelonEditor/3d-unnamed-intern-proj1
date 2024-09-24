@@ -42,6 +42,7 @@ public class FPSController : PortalTraveller {
     public GameObject camHolder;
     public SpawnPoint SpawnPoint;
 
+Quaternion targetCamHolderRotation;
     bool isGrounded;
     void Start () {
         cam = Camera.main;
@@ -108,9 +109,9 @@ public class FPSController : PortalTraveller {
         Vector2 input = new Vector2 (Input.GetAxisRaw ("Horizontal"), Input.GetAxisRaw ("Vertical"));
 
         Vector3 inputDir = input.normalized;
-        Physics.gravity = gravityDirection * gravity;
+        rb.AddForce(gravityDirection * gravity, ForceMode.Acceleration);
         
-
+        camHolder.transform.position = transform.position - gravityDirection * 0.7f;
 
         if (gravityDirection == Vector3.down)
         {
@@ -123,9 +124,8 @@ public class FPSController : PortalTraveller {
         
             rb.linearVelocity = new Vector3 (velocity.x, rb.linearVelocity.y, velocity.z);
 
-            transform.eulerAngles = new Vector3 (0, smoothYaw, 0);
-            
-            camHolder.transform.eulerAngles = -gravityDirection * smoothYaw;
+            transform.eulerAngles = new Vector3 (0, 0, 0);
+
             cam.transform.localEulerAngles = Vector3.right * smoothPitch;
             cam.transform.localEulerAngles = new Vector3(cam.transform.localEulerAngles.x, cam.transform.localEulerAngles.y, 0);
         }
@@ -140,9 +140,8 @@ public class FPSController : PortalTraveller {
         
             rb.linearVelocity = new Vector3 (velocity.x, rb.linearVelocity.y, velocity.z);
 
-            transform.eulerAngles = new Vector3 (180, -smoothYaw, 0);
+            transform.eulerAngles = new Vector3 (180, 0, 0);
             
-            camHolder.transform.eulerAngles = -gravityDirection * smoothYaw;
             cam.transform.localEulerAngles = Vector3.left * smoothPitch;
             cam.transform.localEulerAngles = new Vector3(cam.transform.localEulerAngles.x, cam.transform.localEulerAngles.y, 180);
         }
@@ -157,9 +156,8 @@ public class FPSController : PortalTraveller {
 
             rb.linearVelocity = new Vector3 (rb.linearVelocity.x, velocity.y, velocity.z);
             
-            transform.eulerAngles = new Vector3 (smoothYaw, 0, -90);
+            transform.eulerAngles = new Vector3 (0, 0, -90);
             
-            camHolder.transform.eulerAngles = -gravityDirection * smoothYaw;
             cam.transform.localEulerAngles = Vector3.down * smoothPitch;
             cam.transform.localEulerAngles = new Vector3(cam.transform.localEulerAngles.x, cam.transform.localEulerAngles.y, -90);
         }
@@ -174,9 +172,8 @@ public class FPSController : PortalTraveller {
 
             rb.linearVelocity = new Vector3 (rb.linearVelocity.x, velocity.y, velocity.z);
             
-            transform.eulerAngles = new Vector3 (-smoothYaw, 0, 90);
+            transform.eulerAngles = new Vector3 (0, 0, 90);
             
-            camHolder.transform.eulerAngles = -gravityDirection * smoothYaw;
             cam.transform.localEulerAngles = Vector3.up * smoothPitch;
             cam.transform.localEulerAngles = new Vector3(cam.transform.localEulerAngles.x, cam.transform.localEulerAngles.y, 90);
         }
@@ -193,7 +190,6 @@ public class FPSController : PortalTraveller {
             
             transform.eulerAngles = new Vector3 (-90, 0, 0);
             
-            camHolder.transform.eulerAngles = -gravityDirection * smoothYaw;
             cam.transform.localEulerAngles = Vector3.right * smoothPitch;
             cam.transform.localEulerAngles = new Vector3(-90 + cam.transform.localEulerAngles.x, cam.transform.localEulerAngles.y, cam.transform.localEulerAngles.z);
         }
@@ -210,10 +206,14 @@ public class FPSController : PortalTraveller {
             
             transform.eulerAngles = new Vector3 (90, 0, 0);
             
-            camHolder.transform.eulerAngles = -gravityDirection * smoothYaw;
             cam.transform.localEulerAngles = Vector3.right * smoothPitch;
             cam.transform.localEulerAngles = new Vector3(90 + cam.transform.localEulerAngles.x, cam.transform.localEulerAngles.y, cam.transform.localEulerAngles.z);
         }
+
+
+        targetCamHolderRotation = Quaternion.Euler(-gravityDirection * smoothYaw);
+        // Smoothly interpolate the camHolder rotation
+        camHolder.transform.eulerAngles = -gravityDirection * smoothYaw;
 
         if (rb.linearVelocity.magnitude > terminalVelocity)
         {
@@ -224,19 +224,35 @@ public class FPSController : PortalTraveller {
 
     public override void Teleport (Transform fromPortal, Transform toPortal, Vector3 pos, Quaternion rot) {
         transform.position = pos;
-        Vector3 eulerRot = rot.eulerAngles;
-        float delta = Mathf.DeltaAngle (smoothYaw, eulerRot.y);
-        yaw += delta;
-        smoothYaw += delta;
-        transform.eulerAngles = Vector3.up * smoothYaw;
+        yaw += rot.eulerAngles.y;
+        smoothYaw += rot.eulerAngles.y;
+        transform.eulerAngles = -gravityDirection * smoothYaw;
         velocity = toPortal.TransformVector (fromPortal.InverseTransformVector (velocity));
+        Update();
         Physics.SyncTransforms ();
     }
 
+    public void CameraRotationTransition(Vector3 newGravityDirection){
+        return;
+        if(newGravityDirection == Vector3.down && gravityDirection == Vector3.left){
+            camHolder.transform.eulerAngles = new Vector3(0, 0, 0);
+        }
+
+    }
+    public void SmoothCameraRotationOn()
+    {
+        rotationSmoothTime = 0.7f;
+        StartCoroutine(SmoothCameraRotationOff(2f));
+    }
+    public IEnumerator SmoothCameraRotationOff(float time)
+    {
+        yield return new WaitForSeconds(time);
+        rotationSmoothTime = 0.01f;
+    }
     public void ReturnToSpawnPoint()
     {
         transform.position = new Vector3(SpawnPoint.transform.position.x - 1.2f * SpawnPoint.gravityDirection.x,
-            SpawnPoint.transform.position.y - 1.2f * SpawnPoint.gravityDirection.y, SpawnPoint.transform.position.z - 1.2f * SpawnPoint.gravityDirection.z);
+        SpawnPoint.transform.position.y - 1.2f * SpawnPoint.gravityDirection.y, SpawnPoint.transform.position.z - 1.2f * SpawnPoint.gravityDirection.z);
         transform.rotation = SpawnPoint.transform.rotation;
         gravityDirection = SpawnPoint.gravityDirection;
         rb.linearVelocity = Vector3.zero;

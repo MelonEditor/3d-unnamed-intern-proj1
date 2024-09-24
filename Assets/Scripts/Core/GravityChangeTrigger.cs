@@ -17,10 +17,14 @@ public class GravityChangeTrigger : MonoBehaviour
     public Vector3 GravityDirection;
     private void OnTriggerEnter(Collider other)
     {
-//        if (other.CompareTag("Player"))
+        if (!other.gameObject.CompareTag("Player"))
         {
+            return;
+        }
+        if (player != null)
+        {
+            player.CameraRotationTransition(GravityDirection);
             player.gravityDirection = GravityDirection;
         }
     }
-
 }
