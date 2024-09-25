@@ -33,11 +33,12 @@ public class PlayerPickup : MonoBehaviour
     [SerializeField]
     private float highDrag = 10f; // Drag when close to target
 
-
+    private Rigidbody rb;
     private void Start()
     {
         playerCameraTransform = Camera.main.transform;
         playerCollider = GetComponent<Collider>();
+        rb = GetComponent<Rigidbody>();
         // Remove this line as we'll get the Rigidbody when we pick up an item
         // inHandItemRigidbody = inHandItem.GetComponent<Rigidbody>();
     }
@@ -68,7 +69,6 @@ public class PlayerPickup : MonoBehaviour
     {
         if(hit.collider != null && inHandItem == null)
         {
-            Debug.Log("Picking up");
             Pickable pickableItem = hit.collider.GetComponent<Pickable>();
             if (pickableItem != null)
             {
@@ -111,8 +111,9 @@ public class PlayerPickup : MonoBehaviour
             // Adjust drag based on distance to target
             if (distanceToTarget < highDragDistance)
             {
+                inHandItemRigidbody.linearVelocity = Vector3.zero;
                 inHandItemRigidbody.linearDamping = highDrag;
-                inHandItemRigidbody.angularDamping = highDrag;
+                inHandItemRigidbody.angularDamping = highDrag / 8;
                 
             }
             else
@@ -120,11 +121,12 @@ public class PlayerPickup : MonoBehaviour
                 inHandItemRigidbody.linearDamping = lowDrag;
                 inHandItemRigidbody.angularDamping = lowDrag;
                 
-                // Move the object using physics
-                Vector3 moveDirection = (targetPosition - inHandItem.transform.position).normalized;
-                inHandItemRigidbody.AddForce(moveDirection * moveForce * Time.deltaTime, ForceMode.VelocityChange);
+                // Ensure the object moves smoothly towards the target position
+                Vector3 targetPositionSmooth = Vector3.Lerp(inHandItem.transform.position, targetPosition, Time.deltaTime * 1); // Add smooth factor
+                Vector3 moveDirection = (targetPositionSmooth - inHandItem.transform.position).normalized; // Calculate direction
+                inHandItemRigidbody.linearVelocity = moveDirection * moveForce; // Use velocity for controlled movement
             }
-
+            
             // Limit the velocity
             if (inHandItemRigidbody.linearVelocity.magnitude > maxVelocity)
             {

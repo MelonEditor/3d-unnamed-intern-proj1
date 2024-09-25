@@ -2,16 +2,16 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
-
+using TMPro;
 public class LevelTrigger : MonoBehaviour
 {
-    Text message;
+    TextMeshProUGUI message;
     public string textToDisplay;
     bool activated = false;
 
     private void Awake()
     {
-        message = GameObject.Find("CenterLabelText").GetComponent<Text>();
+        message = GameObject.Find("CenterLabelText").GetComponent<TextMeshProUGUI>();
     }
 
     private void OnTriggerEnter(Collider other)

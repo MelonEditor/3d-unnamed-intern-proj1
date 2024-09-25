@@ -4,6 +4,7 @@ using UnityEngine;
 public class GravityChangeTrigger : MonoBehaviour
 {
     private FPSController player;
+    public AudioSource gravityChangeSound;
 
     private void Start()
     {
@@ -21,10 +22,14 @@ public class GravityChangeTrigger : MonoBehaviour
         {
             return;
         }
+        if(player.gravityDirection == GravityDirection){
+            return;
+        }
         if (player != null)
         {
             player.CameraRotationTransition(GravityDirection);
             player.gravityDirection = GravityDirection;
+            gravityChangeSound.Play();
         }
     }
 }

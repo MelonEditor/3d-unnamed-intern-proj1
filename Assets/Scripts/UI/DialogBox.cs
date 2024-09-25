@@ -1,10 +1,10 @@
 using UnityEngine;
 using UnityEngine.UI;
-
+using TMPro;
 public class DialogBox : MonoBehaviour
 {
-    public GameObject dialogPanel; // Drag your dialog panel here in the Inspector
-    public Text dialogMessage; // Drag your Text component here
+    public GameObject dialogPanel;
+    public TextMeshProUGUI dialogMessage; // Drag your Text component here
 
     // Show the dialog with a custom message
     public void ShowDialog(string message)
@@ -15,7 +15,7 @@ public class DialogBox : MonoBehaviour
 
     public void Start()
     {
-        
+        dialogPanel.GetComponent<Image>().enabled = false;
     }
 }
 

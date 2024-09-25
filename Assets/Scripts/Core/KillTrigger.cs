@@ -4,7 +4,7 @@ using UnityEngine;
 public class KillTrigger : MonoBehaviour
 {
     private FPSController player;
-
+    public AudioSource deathSound;
     private void Start()
     {
         player = FindAnyObjectByType<FPSController>();
@@ -22,6 +22,7 @@ public class KillTrigger : MonoBehaviour
         }
         if (player != null)
         {
+            deathSound.Play();
             player.ReturnToSpawnPoint();
         }
         else

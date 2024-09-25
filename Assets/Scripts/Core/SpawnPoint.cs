@@ -4,6 +4,7 @@ using UnityEngine;
 public class SpawnPoint : MonoBehaviour
 {
     private FPSController player;
+    public AudioSource spawnSound;
 
     private void Start()
     {
@@ -16,10 +17,14 @@ public class SpawnPoint : MonoBehaviour
     public Vector3 gravityDirection;
     private void OnCollisionEnter(Collision other)
     {
+        if(player.SpawnPoint == this){
+            return;
+        }
         if (player != null)
         {
             gravityDirection = player.gravityDirection;
             player.SpawnPoint = this;
+            spawnSound.Play();
         }
         else
         {

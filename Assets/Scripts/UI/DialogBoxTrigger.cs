@@ -1,12 +1,13 @@
 using System;
 using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 public class DialogBoxTrigger : MonoBehaviour
 {
-    Text dialogMessage;
+    TextMeshProUGUI dialogMessage;
     GameObject dialogPanel;
     public float timeout = -1;
     public string textToDisplay;
@@ -14,9 +15,9 @@ public class DialogBoxTrigger : MonoBehaviour
     
     private void Start()
     {
+        Debug.Log("DialogBoxTrigger Start");
         dialogPanel = GameObject.FindGameObjectWithTag("DialogBoxPanel");
-        dialogMessage = GameObject.FindGameObjectWithTag("DialogBoxText").GetComponent<Text>();
-        dialogPanel.GetComponent<Image>().enabled = false;
+        dialogMessage = GameObject.FindGameObjectWithTag("DialogBoxText").GetComponent<TextMeshProUGUI>();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -24,7 +25,10 @@ public class DialogBoxTrigger : MonoBehaviour
         if (activated) { return; }
         dialogPanel.SetActive(true);
         dialogPanel.GetComponent<Image>().enabled = true;
-        dialogMessage.text += textToDisplay + "\n";
+        if(dialogMessage != null)
+        {
+            dialogMessage.text = textToDisplay + "\n";
+        }
         activated = true;
         
         if (timeout < 0) return;

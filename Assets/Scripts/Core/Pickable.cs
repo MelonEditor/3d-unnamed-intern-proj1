@@ -3,14 +3,27 @@ using UnityEngine;
 public class Pickable : MonoBehaviour
 {
     private Rigidbody rb;
+    public AudioSource collisionSound; // Reference to the AudioSource component
+    public float velocityThreshold = 5f; // Set your desired threshold
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
     }
-    void Update(){
+
+    void Update()
+    {
         rb.linearVelocity = Vector3.ClampMagnitude(rb.linearVelocity, 20);
     }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (rb.linearVelocity.magnitude > velocityThreshold) // Check if linearVelocity exceeds threshold
+        {
+            collisionSound.Play(); // Play the sound
+        }
+    }
+
     public GameObject PickUp()
     {
         if (rb != null)

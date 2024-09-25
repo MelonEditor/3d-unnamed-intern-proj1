@@ -27,36 +27,19 @@ public class FPSController : PortalTraveller {
 
     float yawSmoothV;
     float pitchSmoothV;
-    float gravitationalVelocity;
     Vector3 velocity;
     Vector3 smoothV;
-    Vector3 rotationSmoothVelocity;
-    Vector3 currentRotation;
-
-    bool jumping;
-    float lastGroundedTime;
-    bool disabled;
 
     private Rigidbody rb;
 
     public GameObject camHolder;
     public SpawnPoint SpawnPoint;
-
-Quaternion targetCamHolderRotation;
     bool isGrounded;
+
+    public AudioSource walkingSound;
+
     void Start () {
         cam = Camera.main;
-        if (lockCursor) {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-        }
-        
-
-        yaw = transform.eulerAngles.y;
-        pitch = cam.transform.localEulerAngles.x;
-        smoothYaw = yaw;
-        smoothPitch = pitch;
-        
         rb = GetComponent<Rigidbody>();
     }
     void OnCollisionStay()
@@ -67,25 +50,27 @@ Quaternion targetCamHolderRotation;
     {
         isGrounded = false;
     }
+    private bool isMenuActive = true;
+    public void StartGame(){
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+        camHolder.transform.rotation = Quaternion.identity;
+        isMenuActive = false;
+    }
+    bool walkingSoundActive;
+    private IEnumerator PlaySoundWithDelay(AudioSource audioSource)
+    {
+        walkingSoundActive = true;
+        audioSource.Play();
+        yield return new WaitForSeconds(Input.GetKey (KeyCode.LeftShift) ? 0.3f : 0.7f);
+        walkingSoundActive = false;
+    }
     void Update () {
-        
-        if (Input.GetKeyDown (KeyCode.P)) {
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-            Debug.Break ();
-        }
-        if (Input.GetKeyDown (KeyCode.O)) {
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-            disabled = !disabled;
-        }
-
-        if (disabled) {
+        if(isMenuActive){
             return;
         }
 
         if (Input.GetKeyDown (KeyCode.Space) && isGrounded) {
-
             rb.linearVelocity = new Vector3(rb.linearVelocity.x + jumpForce * -gravityDirection.x, rb.linearVelocity.y + jumpForce * -gravityDirection.y,
                 rb.linearVelocity.z + jumpForce * -gravityDirection.z);
         }
@@ -105,20 +90,27 @@ Quaternion targetCamHolderRotation;
         smoothPitch = Mathf.SmoothDampAngle (smoothPitch, pitch, ref pitchSmoothV, rotationSmoothTime);
         smoothYaw = Mathf.SmoothDampAngle (smoothYaw, yaw, ref yawSmoothV, rotationSmoothTime);
         
-        
         Vector2 input = new Vector2 (Input.GetAxisRaw ("Horizontal"), Input.GetAxisRaw ("Vertical"));
+        
+        // Play walking sound if moving
+        if (input.magnitude > 0 && isGrounded && !walkingSoundActive)
+        {
+            StartCoroutine(PlaySoundWithDelay(walkingSound));
+        }
 
-        Vector3 inputDir = input.normalized;
+
+
+        Vector3 inputDir;
         rb.AddForce(gravityDirection * gravity, ForceMode.Acceleration);
         
         camHolder.transform.position = transform.position - gravityDirection * 0.7f;
+        float currentSpeed = Input.GetKey (KeyCode.LeftShift) ? runSpeed : walkSpeed;
 
         if (gravityDirection == Vector3.down)
         {
             inputDir = new Vector3 (input.x, 0, input.y).normalized;
             Vector3 worldInputDir = camHolder.transform.TransformDirection (inputDir);
 
-            float currentSpeed = (Input.GetKey (KeyCode.LeftShift)) ? runSpeed : walkSpeed;
             Vector3 targetVelocity = worldInputDir * currentSpeed;
             velocity = Vector3.SmoothDamp (velocity, targetVelocity, ref smoothV, smoothMoveTime);
         
@@ -134,7 +126,6 @@ Quaternion targetCamHolderRotation;
             inputDir = new Vector3 (-input.x, 0, input.y).normalized;
             Vector3 worldInputDir = camHolder.transform.TransformDirection (inputDir);
 
-            float currentSpeed = (Input.GetKey (KeyCode.LeftShift)) ? runSpeed : walkSpeed;
             Vector3 targetVelocity = worldInputDir * currentSpeed;
             velocity = Vector3.SmoothDamp (velocity, targetVelocity, ref smoothV, smoothMoveTime);
         
@@ -150,7 +141,6 @@ Quaternion targetCamHolderRotation;
             inputDir = new Vector3 (0, -input.x, input.y).normalized;
             Vector3 worldInputDir = camHolder.transform.TransformDirection (inputDir);
 
-            float currentSpeed = (Input.GetKey (KeyCode.LeftShift)) ? runSpeed : walkSpeed;
             Vector3 targetVelocity = worldInputDir * currentSpeed;
             velocity = Vector3.SmoothDamp (velocity, targetVelocity, ref smoothV, smoothMoveTime);
 
@@ -166,7 +156,6 @@ Quaternion targetCamHolderRotation;
             inputDir = new Vector3 (0, input.x, input.y).normalized;
             Vector3 worldInputDir = camHolder.transform.TransformDirection (inputDir);
 
-            float currentSpeed = (Input.GetKey (KeyCode.LeftShift)) ? runSpeed : walkSpeed;
             Vector3 targetVelocity = worldInputDir * currentSpeed;
             velocity = Vector3.SmoothDamp (velocity, targetVelocity, ref smoothV, smoothMoveTime);
 
@@ -182,7 +171,6 @@ Quaternion targetCamHolderRotation;
             inputDir = new Vector3 (input.x, input.y, 0).normalized;
             Vector3 worldInputDir = camHolder.transform.TransformDirection (inputDir);
 
-            float currentSpeed = (Input.GetKey (KeyCode.LeftShift)) ? runSpeed : walkSpeed;
             Vector3 targetVelocity = worldInputDir * currentSpeed;
             velocity = Vector3.SmoothDamp (velocity, targetVelocity, ref smoothV, smoothMoveTime);
             
@@ -198,7 +186,6 @@ Quaternion targetCamHolderRotation;
             inputDir = new Vector3 (input.x, -input.y, 0).normalized;
             Vector3 worldInputDir = camHolder.transform.TransformDirection (inputDir);
 
-            float currentSpeed = (Input.GetKey (KeyCode.LeftShift)) ? runSpeed : walkSpeed;
             Vector3 targetVelocity = worldInputDir * currentSpeed;
             velocity = Vector3.SmoothDamp (velocity, targetVelocity, ref smoothV, smoothMoveTime);
             
@@ -209,9 +196,6 @@ Quaternion targetCamHolderRotation;
             cam.transform.localEulerAngles = Vector3.right * smoothPitch;
             cam.transform.localEulerAngles = new Vector3(90 + cam.transform.localEulerAngles.x, cam.transform.localEulerAngles.y, cam.transform.localEulerAngles.z);
         }
-
-
-        targetCamHolderRotation = Quaternion.Euler(-gravityDirection * smoothYaw);
         // Smoothly interpolate the camHolder rotation
         camHolder.transform.eulerAngles = -gravityDirection * smoothYaw;
 
