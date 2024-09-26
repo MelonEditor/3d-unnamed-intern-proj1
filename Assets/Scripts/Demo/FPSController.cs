@@ -12,7 +12,6 @@ public class FPSController : PortalTraveller {
     public float gravity = 18;
     public float terminalVelocity = 100;
 
-    public bool lockCursor;
     public float mouseSensitivity = 10;
     public Vector2 pitchMinMax = new Vector2 (-40, 85);
     public float rotationSmoothTime = 0.1f;
@@ -58,7 +57,7 @@ public class FPSController : PortalTraveller {
     {
         isGrounded = false;
     }
-    private bool isMenuActive = true;
+    public bool isMenuActive = true;
     public void StartGame(){
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -105,7 +104,6 @@ public class FPSController : PortalTraveller {
         {
             StartCoroutine(PlaySoundWithDelay(walkingSound));
         }
-
 
 
         Vector3 inputDir;
