@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class Pickable : MonoBehaviour
@@ -9,6 +10,13 @@ public class Pickable : MonoBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        StartCoroutine(UnmuteCollisionSound());
+    }
+
+    private IEnumerator UnmuteCollisionSound()
+    {
+        yield return new WaitForSeconds(1f);
+        collisionSound.mute = false;
     }
 
     void Update()

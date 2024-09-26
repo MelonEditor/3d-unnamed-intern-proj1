@@ -5,7 +5,7 @@ public class GravityChangeTrigger : MonoBehaviour
 {
     private FPSController player;
     public AudioSource gravityChangeSound;
-
+    public Vector3 GravityDirection;
     private void Start()
     {
         player = FindAnyObjectByType<FPSController>();
@@ -15,7 +15,6 @@ public class GravityChangeTrigger : MonoBehaviour
         }
     }
 
-    public Vector3 GravityDirection;
     private void OnTriggerEnter(Collider other)
     {
         if (!other.gameObject.CompareTag("Player"))
@@ -28,7 +27,6 @@ public class GravityChangeTrigger : MonoBehaviour
         if (player != null)
         {
             player.CameraRotationTransition(GravityDirection);
-            player.gravityDirection = GravityDirection;
             gravityChangeSound.Play();
         }
     }

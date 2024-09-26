@@ -42,9 +42,17 @@ public class FPSController : PortalTraveller {
         cam = Camera.main;
         rb = GetComponent<Rigidbody>();
     }
-    void OnCollisionStay()
+    void OnCollisionStay(Collision collision)
     {
-        isGrounded = true;
+        foreach (ContactPoint contact in collision.contacts)
+        {
+            if (Vector3.Dot(contact.normal, -gravityDirection) > 0.7f)
+            {
+                isGrounded = true;
+                return;
+            }
+        }
+        isGrounded = false;
     }
     void OnCollisionExit()
     {
@@ -197,7 +205,14 @@ public class FPSController : PortalTraveller {
             cam.transform.localEulerAngles = new Vector3(90 + cam.transform.localEulerAngles.x, cam.transform.localEulerAngles.y, cam.transform.localEulerAngles.z);
         }
         // Smoothly interpolate the camHolder rotation
-        camHolder.transform.eulerAngles = -gravityDirection * smoothYaw;
+
+        Vector3 targetRotation = -gravityDirection * smoothYaw;
+        if(rotationSmooth){
+            camHolder.transform.rotation = Quaternion.Slerp(camHolder.transform.rotation, Quaternion.Euler(targetRotation), Time.deltaTime * 10f);
+        }
+        else{
+            camHolder.transform.rotation = Quaternion.Euler(targetRotation);
+        }
 
         if (rb.linearVelocity.magnitude > terminalVelocity)
         {
@@ -205,7 +220,7 @@ public class FPSController : PortalTraveller {
         }
         
     }
-
+    bool rotationSmooth = false;
     public override void Teleport (Transform fromPortal, Transform toPortal, Vector3 pos, Quaternion rot) {
         transform.position = pos;
         yaw += rot.eulerAngles.y;
@@ -217,21 +232,13 @@ public class FPSController : PortalTraveller {
     }
 
     public void CameraRotationTransition(Vector3 newGravityDirection){
-        return;
-        if(newGravityDirection == Vector3.down && gravityDirection == Vector3.left){
-            camHolder.transform.eulerAngles = new Vector3(0, 0, 0);
-        }
-
+        rotationSmooth = true;
+        gravityDirection = newGravityDirection;
+        StartCoroutine(RotationSmooth());
     }
-    public void SmoothCameraRotationOn()
-    {
-        rotationSmoothTime = 0.7f;
-        StartCoroutine(SmoothCameraRotationOff(2f));
-    }
-    public IEnumerator SmoothCameraRotationOff(float time)
-    {
-        yield return new WaitForSeconds(time);
-        rotationSmoothTime = 0.01f;
+    private IEnumerator RotationSmooth(){
+        yield return new WaitForSeconds(0.4f);
+        rotationSmooth = false;
     }
     public void ReturnToSpawnPoint()
     {

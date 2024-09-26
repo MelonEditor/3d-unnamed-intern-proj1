@@ -9,6 +9,8 @@ public class GrowTrigger : MonoBehaviour
         
         if (grow)
         {
+            if (other.transform.localScale.x > 20f || other.transform.localScale.y > 20f ||
+                other.transform.localScale.z > 20f) { return; }
             other.transform.localScale += new Vector3(0.01f, 0.01f, 0.01f);
         }
         else

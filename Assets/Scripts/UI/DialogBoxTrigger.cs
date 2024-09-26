@@ -23,6 +23,9 @@ public class DialogBoxTrigger : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         if (activated) { return; }
+        if(!other.gameObject.CompareTag("Player")){
+            return;
+        }
         dialogPanel.SetActive(true);
         dialogPanel.GetComponent<Image>().enabled = true;
         if(dialogMessage != null)
