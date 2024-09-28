@@ -15,7 +15,6 @@ public class DialogBoxTrigger : MonoBehaviour
     
     private void Start()
     {
-        Debug.Log("DialogBoxTrigger Start");
         dialogPanel = GameObject.FindGameObjectWithTag("DialogBoxPanel");
         dialogMessage = GameObject.FindGameObjectWithTag("DialogBoxText").GetComponent<TextMeshProUGUI>();
     }

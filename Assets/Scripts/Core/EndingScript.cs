@@ -1,7 +1,6 @@
 
 using System.Collections;
 using TMPro;
-using UnityEditor.SearchService;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -11,16 +10,12 @@ public class EndingScript : MonoBehaviour
     public SpawnPoint spawnPoint;
     TextMeshProUGUI dialogMessage, centerMessage;
     GameObject dialogPanel;
-    FPSController player;
     bool activated;
-    MenuController menu;
     private void Start()
     {
-        player = GameObject.FindGameObjectWithTag("Player").GetComponent<FPSController>();
         dialogPanel = GameObject.FindGameObjectWithTag("DialogBoxPanel");
         dialogMessage = GameObject.FindGameObjectWithTag("DialogBoxText").GetComponent<TextMeshProUGUI>();
         centerMessage = GameObject.Find("CenterLabelText").GetComponent<TextMeshProUGUI>();
-        menu = GameObject.Find("Menu").GetComponent<MenuController>();
     }
 
     private void OnTriggerEnter(Collider other)

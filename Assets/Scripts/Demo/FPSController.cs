@@ -72,16 +72,40 @@ public class FPSController : PortalTraveller {
         yield return new WaitForSeconds(Input.GetKey (KeyCode.LeftShift) ? 0.3f : 0.7f);
         walkingSoundActive = false;
     }
+    void FixedUpdate(){
+       if(isMenuActive){
+            return;
+        }
+        rb.AddForce(gravityDirection * gravity, ForceMode.Acceleration);
+
+        if (isJumping) {
+            rb.linearVelocity = new Vector3(rb.linearVelocity.x + jumpForce * -gravityDirection.x, rb.linearVelocity.y + jumpForce * -gravityDirection.y,
+                rb.linearVelocity.z + jumpForce * -gravityDirection.z);
+            isJumping = false;
+        }
+    }
+    bool cursorLock = false;
+    bool isJumping = false;
     void Update () {
         if(isMenuActive){
             return;
         }
-
-        if (Input.GetKeyDown (KeyCode.Space) && isGrounded) {
-            rb.linearVelocity = new Vector3(rb.linearVelocity.x + jumpForce * -gravityDirection.x, rb.linearVelocity.y + jumpForce * -gravityDirection.y,
-                rb.linearVelocity.z + jumpForce * -gravityDirection.z);
+        if (Input.GetKeyDown (KeyCode.Escape) && !cursorLock) {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+            cursorLock = true;
+        }else if(Input.GetKeyDown (KeyCode.Escape) && cursorLock){
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+            cursorLock = false;
+        }
+        if(cursorLock){
+            return;
         }
 
+        if (Input.GetKeyDown (KeyCode.Space) && isGrounded) {
+            isJumping = true;
+        }
         float mX = Input.GetAxisRaw ("Mouse X");
         float mY = Input.GetAxisRaw ("Mouse Y");
 
@@ -107,7 +131,7 @@ public class FPSController : PortalTraveller {
 
 
         Vector3 inputDir;
-        rb.AddForce(gravityDirection * gravity, ForceMode.Acceleration);
+
         
         camHolder.transform.position = transform.position - gravityDirection * 0.7f;
         float currentSpeed = Input.GetKey (KeyCode.LeftShift) ? runSpeed : walkSpeed;

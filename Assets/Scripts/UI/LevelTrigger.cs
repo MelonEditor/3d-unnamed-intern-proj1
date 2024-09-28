@@ -16,6 +16,9 @@ public class LevelTrigger : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if(!other.gameObject.CompareTag("Player")){
+            return;
+        }
         if (activated) { return; }
         message.text = textToDisplay;
         StartCoroutine(TextTimeout(8.0f));
